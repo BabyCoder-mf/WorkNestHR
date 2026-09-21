@@ -1,0 +1,13 @@
+# Python environment artifacts
+__pycache__/
+*.pyc
+
+# Local environment keys (Secrets)
+.env
+
+# Local databases (Render uses independent databases or configurations)
+*.db
+instance/
+
+# Large media files
+*.mp4

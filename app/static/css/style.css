@@ -1,0 +1,201 @@
+/* WorkNest HR Custom Styles */
+:root {
+    --wn-primary: #1f2937;      /* Dark blue/gray */
+    --wn-secondary: #f59e0b;    /* Amber */
+    --wn-accent: #fbbf24;       /* Light yellow */
+    --wn-success: #10b981;      /* Green */
+    --wn-dark: #1f2937;         /* Dark blue */
+    --wn-light: #f8fafc;        /* Light background */
+}
+
+body {
+    background: linear-gradient(135deg, var(--wn-secondary) 0%, var(--wn-accent) 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+}
+
+.card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(31, 41, 55, 0.1);
+    backdrop-filter: blur(10px);
+    background: #fef3c7;
+}
+
+/* Custom text colors */
+.text-wn-primary {
+    color: var(--wn-primary) !important;
+}
+
+.text-wn-secondary {
+    color: var(--wn-secondary) !important;
+}
+
+.text-wn-muted {
+    color: #1f2937 !important;
+}
+
+/* Custom button colors */
+.btn-primary {
+    background: linear-gradient(45deg, var(--wn-primary), var(--wn-dark));
+    border: none;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, var(--wn-dark), var(--wn-primary));
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(31, 41, 55, 0.4);
+    color: white;
+}
+
+.btn-secondary {
+    background: linear-gradient(45deg, #6b7280, #9ca3af);
+    border: none;
+    color: white;
+}
+
+.btn-success {
+    background: linear-gradient(45deg, var(--wn-success), #34d399);
+    border: none;
+}
+
+.btn {
+    border-radius: 0.75rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-lg {
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+}
+
+
+/* Custom card header */
+.card-header-custom {
+    background: linear-gradient(45deg, var(--wn-primary), var(--wn-dark)) !important;
+    color: white !important;
+    border-bottom: none;
+}
+
+/* Navbar customization */
+.navbar-dark.bg-primary {
+    background: linear-gradient(45deg, var(--wn-primary), var(--wn-dark)) !important;
+}
+
+/* Alert customization */
+.alert-info {
+    background: linear-gradient(45deg, #dbeafe, #eff6ff);
+    border-color: #bfdbfe;
+    color: #1e40af;
+}
+
+.alert-success {
+    background: linear-gradient(45deg, #d1fae5, #ecfdf5);
+    border-color: #a7f3d0;
+    color: #065f46;
+}
+
+.alert-warning {
+    background: linear-gradient(45deg, #fef3c7, #fffbeb);
+    border-color: #fcd34d;
+    color: #92400e;
+}
+
+.alert-danger {
+    background: linear-gradient(45deg, #fee2e2, #fef2f2);
+    border-color: #fca5a5;
+    color: #991b1b;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+
+    .display-4 {
+        font-size: 2.5rem;
+    }
+
+    .btn-lg {
+        font-size: 1rem;
+        padding: 1rem 1.5rem;
+    }
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Profile photo hover effect */
+.profile-photo-wrapper {
+    transition: all 0.3s ease;
+}
+
+.profile-photo-wrapper:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.profile-photo-wrapper:hover .profile-photo {
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+    transition: box-shadow 0.3s ease;
+}
+
+.profile-photo-wrapper:hover .camera-icon {
+    background-color: #0a58ca !important;
+    transform: scale(1.1);
+    transition: all 0.3s ease;
+}
+
+.profile-photo-wrapper:active {
+    transform: translateY(0);
+    transition: transform 0.1s ease;
+}
+
+/* Enhanced Profile photo hover effect (for larger 150px photos) */
+.profile-photo-wrapper {
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.profile-photo-wrapper:hover {
+    opacity: 0.9;
+    transform: translateY(-3px);
+}
+
+.profile-photo-wrapper:hover .profile-photo {
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.3);
+    transition: box-shadow 0.3s ease;
+}
+
+.profile-photo-wrapper:hover .camera-icon {
+    background-color: #0a58ca !important;
+    transform: scale(1.15);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profile-photo-wrapper:active {
+    transform: translateY(-1px);
+    transition: transform 0.1s ease;
+}
+
+/* Optional: Add a subtle glow effect on hover */
+@keyframes subtle-glow {
+    0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.3); }
+    50% { box-shadow: 0 0 0 8px rgba(13, 110, 253, 0.1); }
+    100% { box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.3); }
+}
+
+.profile-photo-wrapper:hover .profile-photo {
+    animation: subtle-glow 2s infinite;
+}

@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+
+<!-- Admin Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <!-- Clickable Admin Profile Photo -->
+                    <div class="col-auto">
+                        <!-- Make this entire wrapper clickable -->
+                        <div class="position-relative d-inline-block profile-photo-wrapper"
+                             style="cursor: pointer;"
+                             onclick="document.getElementById('adminProfileUpload').click()">
+                            <img src="{{ admin_data.profile_image_url or 'https://via.placeholder.com/80' }}"
+                                 alt="{{ admin_data.name }}"
+                                 class="rounded-circle border profile-photo"
+                                 style="width: 80px; height: 80px; object-fit: cover;">
+                            <div class="position-absolute bottom-0 end-0 bg-primary rounded-circle p-1 border camera-icon">
+                                <i class="bi bi-camera text-white" style="font-size: 0.8rem;"></i>
+                            </div>
+                        </div>
+                        <input type="file" id="adminProfileUpload" accept="image/*" style="display: none;" onchange="uploadAdminProfilePhoto(this)">
+                    </div>
+                    <div class="col">
+                        <h4 class="mb-1">{{ admin_data.name }}</h4>
+                        <p class="text-muted mb-1">Administrator • {{ admin_data.email }}</p>
+                        <p class="text-muted mb-0">
+                            <i class="bi bi-geo-alt"></i>
+                            Location: <span id="adminLocation">Loading...</span>
+                        </p>
+                    </div>
+                    <div class="col-auto">
+                        <span class="badge bg-success fs-6">Admin</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Statistics Dashboard -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ stats.total_employees }}</h4>
+                            <p class="mb-0">Total Employees</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-people fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ stats.today_attendance }}</h4>
+                            <p class="mb-0">Present Today</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-check-circle fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ stats.pending_leaves }}</h4>
+                            <p class="mb-0">Pending Leaves</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-clock fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ stats.total_attendance }}</h4>
+                            <p class="mb-0">Total Records</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-calendar-check fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-primary w-100 py-3" onclick="showFeature('addEmployee')">
+                                <i class="bi bi-person-plus fs-2"></i><br>
+                                Add Employee
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-success w-100 py-3" onclick="showFeature('manageEmployees')">
+                                <i class="bi bi-people fs-2"></i><br>
+                                Manage Employees
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-warning w-100 py-3" onclick="showFeature('viewAttendance')">
+                                <i class="bi bi-calendar-check fs-2"></i><br>
+                                View Attendance
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-info w-100 py-3" onclick="showFeature('reports')">
+                                <i class="bi bi-graph-up fs-2"></i><br>
+                                Reports
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for activity in recent_activity %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-{{ activity.icon }} text-{{ activity.color }} me-2"></i>
+                                {{ activity.message }}
+                            </div>
+                            <small class="text-muted">{{ activity.time }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">System Info</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Version:</strong> WorkNest HR v1.0
+                    </div>
+                    <div class="mb-3">
+                        <strong>Last Backup:</strong> Today, 02:00 AM
+                    </div>
+                    <div class="mb-3">
+                        <strong>System Status:</strong>
+                        <span class="badge bg-success">Online</span>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button class="btn btn-danger w-100" onclick="logout()">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feature Placeholder -->
+<div id="featurePlaceholder" class="mt-4" style="display: none;">
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <h4 id="featureTitle" class="text-muted"></h4>
+            <p class="text-muted">This feature is coming soon!</p>
+            <button class="btn btn-secondary" onclick="hideFeature()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+<script>
+// Get admin location
+document.addEventListener('DOMContentLoaded', function() {
+    getAdminLocation();
+});
+
+async function getAdminLocation() {
+    try {
+        const response = await fetch('/api/get-current-location');
+        const location = await response.json();
+
+        if (location.success) {
+            document.getElementById('adminLocation').textContent =
+                `${location.city}, ${location.country}`;
+        } else {
+            document.getElementById('adminLocation').textContent = 'Unknown';
+        }
+    } catch (error) {
+        console.error('Location error:', error);
+        document.getElementById('adminLocation').textContent = 'Error loading location';
+    }
+}
+
+// Feature handlers
+function showFeature(feature) {
+    if (feature === 'manageEmployees') {
+        // Redirect to employee management page
+        window.location.href = "{{ url_for('main.manage_employees') }}";
+        return;
+    }
+
+    // For other features, show placeholders
+    const features = {
+        'addEmployee': 'Add New Employee',
+        'viewAttendance': 'View Attendance Records',
+        'reports': 'Generate Reports'
+    };
+
+    document.getElementById('featureTitle').textContent = features[feature];
+    document.getElementById('featurePlaceholder').style.display = 'block';
+    document.getElementById('featurePlaceholder').scrollIntoView({ behavior: 'smooth' });
+}
+
+function hideFeature() {
+    document.getElementById('featurePlaceholder').style.display = 'none';
+}
+
+// Utility function to convert file to base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
+// Utility function to show toast notifications
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toastContainer');
+    const bgColor = type === 'success' ? 'bg-success' :
+                    type === 'error' ? 'bg-danger' : 'bg-info';
+    const toastId = 'toast-' + Date.now();
+
+    const toastHTML = `
+        <div id="${toastId}" class="toast align-items-center text-white ${bgColor} border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `;
+
+    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    toast.show();
+
+    // Remove toast from DOM after it's hidden
+    toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+    });
+}
+
+// Admin Profile Photo Upload - FIXED VERSION
+async function uploadAdminProfilePhoto(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    // Check file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+        showToast('Please select a valid image file (JPEG, PNG, GIF, WebP).', 'error');
+        return;
+    }
+
+    // Check file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+        showToast('Image size should be less than 5MB.', 'error');
+        return;
+    }
+
+    try {
+        // Show loading state
+        const profileImg = document.querySelector('.profile-photo');
+        const originalSrc = profileImg.src;
+
+        // Show loading spinner on image
+        profileImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZGRkIi8+CjxjaXJjbGUgY3g9IjQwIiBjeT0iNDAiIHI9IjIwIiBzdHJva2U9IiMwMDc3ZmYiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtZGFzaGFycmF5PSI1MCw1MCI+CjxhbmltYXRlVHJhbnNmb3JtIGF0dHJpYnV0ZU5hbWU9InRyYW5zZm9ybSIgdHlwZT0icm90YXRlIiByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSIgZHVyPSIxcyIgdmFsdWVzPSIwIDQwIDQwOzM2MCA0MCA0MCIvPgo8L2NpcmNsZT4KPC9zdmc+';
+
+        showToast('Uploading photo...', 'info');
+
+        // Convert to base64
+        const base64Data = await fileToBase64(file);
+        const cleanBase64 = base64Data.split(',')[1];
+
+        // Send to server - USING CORRECT ENDPOINT
+        const response = await fetch('/api/upload-admin-profile-photo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                image_data: cleanBase64
+            })
+        });
+
+        const result = await response.json();
+        console.log('Admin upload response:', result);
+
+        if (result.success) {
+            // Update profile image with timestamp to prevent caching
+            profileImg.src = result.image_url + '?t=' + new Date().getTime();
+            showToast('Profile photo updated successfully! Refreshing in 2 seconds...', 'success');
+
+            // ✅ AUTO-REFRESH ADDED HERE
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            // Revert to original image
+            profileImg.src = originalSrc;
+            showToast(`Upload failed: ${result.message}`, 'error');
+        }
+
+    } catch (error) {
+        console.error('Admin upload error:', error);
+        showToast(`Error: ${error.message}`, 'error');
+    }
+} // ← ADDED THIS MISSING CLOSING BRACE!
+
+// Logout function
+async function logout() {
+    try {
+        const response = await fetch('/api/logout', {
+            method: 'POST'
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            window.location.href = '/';
+        } else {
+            // If API logout fails, still redirect to home
+            window.location.href = '/';
+        }
+    } catch (error) {
+        console.error('Logout error:', error);
+        window.location.href = '/';
+    }
+}
+</script>
+{% endblock %}

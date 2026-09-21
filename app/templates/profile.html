@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+<!-- Profile Header -->
+<div class="text-center mb-4">
+    <!-- Clickable Profile Photo -->
+    <div class="position-relative d-inline-block profile-photo-wrapper"
+         style="cursor: pointer;"
+         onclick="document.getElementById('photoUpload').click()">
+        <img src="{{ staff.face_image_url or 'https://via.placeholder.com/150' }}"
+             alt="{{ staff.name }}"
+             class="rounded-circle border profile-photo"
+             style="width: 150px; height: 150px; object-fit: cover;">
+        <div class="position-absolute bottom-0 end-0 bg-primary rounded-circle p-2 border camera-icon">
+            <i class="bi bi-camera text-white"></i>
+        </div>
+    </div>
+    <input type="file" id="photoUpload" accept="image/*" style="display: none;" onchange="uploadProfilePhoto(this)">
+
+    <h3 class="mt-3 text-wn-primary">{{ staff.name }}</h3>
+    <p class="text-wn-muted">{{ staff.position }} • {{ staff.department }}</p>
+    <p class="text-wn-muted">Employee ID: {{ staff.employee_id }}</p>
+
+    <!-- Upload Status -->
+    <div id="uploadStatus" class="mt-2" style="min-height: 40px;"></div>
+
+    <!-- Current Location Display -->
+    <div class="mt-2">
+        <small class="text-muted">
+            <i class="bi bi-geo-alt"></i>
+            Current Location: <span id="currentLocation">Loading...</span>
+        </small>
+    </div>
+</div>
+                    <!-- Employee Details Section - Compact Design -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light py-2">
+                                    <h6 class="mb-0" style="font-size: 0.9rem;">Personal Information</h6>
+                                </div>
+                                <div class="card-body py-2">
+                                    <table class="table table-sm table-borderless mb-0">
+                                        <tr>
+                                            <td class="p-1"><strong>Age:</strong></td>
+                                            <td class="p-1">{{ staff.age or 'Not set' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-1"><strong>Gender:</strong></td>
+                                            <td class="p-1">{{ staff.sex or 'Not set' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-1"><strong>Country:</strong></td>
+                                            <td class="p-1">{{ staff.country or 'Not set' }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light py-2">
+                                    <h6 class="mb-0" style="font-size: 0.9rem;">Employment Details</h6>
+                                </div>
+                                <div class="card-body py-2">
+                                    <table class="table table-sm table-borderless mb-0">
+                                        <tr>
+                                            <td class="p-1"><strong>Contract Start:</strong></td>
+                                            <td class="p-1">
+                                                {% if staff.contract_start %}
+                                                    {{ staff.contract_start.strftime('%Y-%m-%d') }}
+                                                {% else %}
+                                                    Not set
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-1"><strong>Contract End:</strong></td>
+                                            <td class="p-1">
+                                                {% if staff.contract_end %}
+                                                    {{ staff.contract_end.strftime('%Y-%m-%d') }}
+                                                {% else %}
+                                                    Not set
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-1"><strong>Email:</strong></td>
+                                            <td class="p-1" style="word-break: break-all; font-size: 0.85rem;">{{ staff.email or 'Not set' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-1"><strong>PIN:</strong></td>
+                                            <td class="p-1">••••</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Action Buttons -->
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-primary w-100 py-2" onclick="showLeaveForm()">
+                                <i class="bi bi-calendar-check"></i> Leave/Time-Off
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-success w-100 py-2" onclick="showHoursForm()">
+                                <i class="bi bi-clock"></i> Submit Hours
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-danger w-100 py-2" onclick="logout()">
+                                <i class="bi bi-box-arrow-right"></i> Log Out
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Forms Section -->
+                    <div id="formsSection" class="mt-4" style="display: none;">
+                        <!-- Leave Form -->
+                        <div id="leaveForm" style="display: none;">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0">Request Leave/Time-Off</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form id="leaveRequestForm">
+                                        <div class="mb-3">
+                                            <label class="form-label">Leave Type</label>
+                                            <select class="form-select" required>
+                                                <option value="">Select leave type</option>
+                                                <option value="sick">Sick Leave</option>
+                                                <option value="vacation">Vacation</option>
+                                                <option value="personal">Personal</option>
+                                                <option value="emergency">Emergency</option>
+                                            </select>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Start Date</label>
+                                                <input type="date" class="form-control" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">End Date</label>
+                                                <input type="date" class="form-control" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Reason</label>
+                                            <textarea class="form-control" rows="3" placeholder="Enter reason for leave..." required></textarea>
+                                        </div>
+                                        <div class="d-grid gap-2">
+                                            <button type="submit" class="btn btn-success">Submit Leave Request</button>
+                                            <button type="button" class="btn btn-secondary" onclick="hideForms()">Cancel</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hours Form -->
+                        <div id="hoursForm" style="display: none;">
+                            <div class="card">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0">Submit Work Hours</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form id="hoursSubmissionForm">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Date</label>
+                                                <input type="date" class="form-control" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Hours Worked</label>
+                                                <input type="number" class="form-control" min="1" max="24" step="0.5" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Tasks Completed</label>
+                                            <textarea class="form-control" rows="3" placeholder="Describe tasks completed..." required></textarea>
+                                        </div>
+                                        <div class="d-grid gap-2">
+                                            <button type="submit" class="btn btn-success">Submit Hours</button>
+                                            <button type="button" class="btn btn-secondary" onclick="hideForms()">Cancel</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back to Home -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('main.index') }}" class="text-decoration-none">
+                    <i class="bi bi-arrow-left"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Get current location when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    getCurrentLocation();
+});
+
+// Get current location
+async function getCurrentLocation() {
+    try {
+        const response = await fetch('/api/get-current-location');
+        const location = await response.json();
+
+        if (location.success) {
+            document.getElementById('currentLocation').textContent =
+                `${location.city}, ${location.country}`;
+        } else {
+            document.getElementById('currentLocation').textContent = 'Unknown';
+        }
+    } catch (error) {
+        document.getElementById('currentLocation').textContent = 'Error loading location';
+    }
+}
+
+// Upload profile photo - FIXED VERSION
+async function uploadProfilePhoto(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    // Check file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+        showUploadMessage('Please select a valid image file (JPEG, PNG, GIF, WebP).', 'error');
+        return;
+    }
+
+    // Check file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+        showUploadMessage('Image size should be less than 5MB.', 'error');
+        return;
+    }
+
+    console.log('Starting photo upload...');
+
+    // Show loading
+    const profilePhoto = document.querySelector('.profile-photo');
+    const originalSrc = profilePhoto.src;
+    profilePhoto.style.opacity = '0.5';
+    profilePhoto.style.filter = 'grayscale(100%)';
+
+    showUploadMessage('Uploading photo...', 'info');
+
+    try {
+        // Convert image to base64
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const base64Data = e.target.result.split(',')[1];
+
+            console.log('Sending to server...');
+
+            // Upload to backend - USING NEW ENDPOINT
+            const response = await fetch('/api/update-profile-photo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    image_data: base64Data
+                })
+            });
+
+            const result = await response.json();
+            console.log('Server response:', result);
+
+            // Reset photo styling
+            profilePhoto.style.opacity = '1';
+            profilePhoto.style.filter = 'none';
+
+            if (result.success) {
+                // Update profile photo with timestamp to prevent caching
+                profilePhoto.src = result.image_url + '?t=' + new Date().getTime();
+                showUploadMessage('Profile photo updated successfully!', 'success');
+
+                // Auto-hide success message after 1.5 seconds
+                setTimeout(() => {
+                    document.getElementById('uploadStatus').innerHTML = '';
+                }, 1500);
+
+                if (result.success) {
+    // Update profile photo with timestamp to prevent caching
+    profilePhoto.src = result.image_url + '?t=' + new Date().getTime();
+    showUploadMessage('Profile photo updated successfully! Page will refresh in 2 seconds...', 'success');
+
+    // Auto-hide success message after 1.5 seconds
+    setTimeout(() => {
+        document.getElementById('uploadStatus').innerHTML = '';
+    }, 1500);
+
+    // ✅ AUTO-REFRESH ADDED HERE
+    setTimeout(() => {
+        location.reload();
+    }, 2000);
+}
+
+
+            } else {
+                profilePhoto.src = originalSrc;
+                showUploadMessage('Failed to update: ' + result.message, 'error');
+            }
+        };
+
+        reader.onerror = function() {
+            profilePhoto.style.opacity = '1';
+            profilePhoto.style.filter = 'none';
+            profilePhoto.src = originalSrc;
+            showUploadMessage('Error reading image file.', 'error');
+        };
+
+        reader.readAsDataURL(file);
+
+    } catch (error) {
+        console.error('Upload error:', error);
+        profilePhoto.style.opacity = '1';
+        profilePhoto.style.filter = 'none';
+        showUploadMessage('Error: ' + error.message, 'error');
+    }
+}
+
+// Helper function to show upload messages
+function showUploadMessage(message, type) {
+    const statusDiv = document.getElementById('uploadStatus');
+    const bgClass = type === 'success' ? 'alert-success' :
+                   type === 'error' ? 'alert-danger' : 'alert-info';
+
+    statusDiv.innerHTML = `
+        <div class="alert ${bgClass} alert-dismissible fade show">
+            ${message}
+            <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+        </div>
+    `;
+}
+
+function showLeaveForm() {
+    document.getElementById('formsSection').style.display = 'block';
+    document.getElementById('leaveForm').style.display = 'block';
+    document.getElementById('hoursForm').style.display = 'none';
+    document.getElementById('formsSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function showHoursForm() {
+    document.getElementById('formsSection').style.display = 'block';
+    document.getElementById('hoursForm').style.display = 'block';
+    document.getElementById('leaveForm').style.display = 'none';
+    document.getElementById('formsSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function hideForms() {
+    document.getElementById('formsSection').style.display = 'none';
+}
+
+// Handle form submissions
+document.getElementById('leaveRequestForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Leave request submitted successfully!');
+    hideForms();
+});
+
+document.getElementById('hoursSubmissionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Work hours submitted successfully!');
+    hideForms();
+});
+
+// Logout function
+async function logout() {
+    try {
+        const response = await fetch('/api/logout', {
+            method: 'POST'
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            window.location.href = '/';
+        }
+    } catch (error) {
+        console.error('Logout error:', error);
+        window.location.href = '/';
+    }
+}
+</script>
+{% endblock %}
