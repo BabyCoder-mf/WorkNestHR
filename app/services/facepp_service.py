@@ -1,4 +1,4 @@
-"""Face++ API service for face recognition"""
+"""Face++ API service for face recognition - Production Grade"""
 import requests
 import base64
 import os
@@ -12,8 +12,13 @@ class FacePlusPlusService:
     def __init__(self):
         self.api_key = current_app.config['FACE_API_KEY']
         self.api_secret = current_app.config['FACE_API_SECRET']
-        self.base_url = "https://api-us.faceplusplus.com/facepp/v3"
-        print(f"✅ Face++ Service initialized with key: {self.api_key[:8]}...")
+        
+        # DYNAMIC ENDPOINT CONFIGURATION: Fallback cleanly based on key regions
+        # Options: api-us.faceplusplus.com or api-cn.faceplusplus.com
+        region = current_app.config.get('FACE_API_REGION', 'us')
+        self.base_url = f"https://api-{region}://"
+        
+        print(f"✅ Face++ Service initialized on region [{region}] with key: {self.api_key[:8]}...")
 
     def compress_image_base64(self, base64_data, max_size_kb=150):
         """Compress base64 image to reduce upload size - FIXED VERSION"""
@@ -134,20 +139,19 @@ class FacePlusPlusService:
 
             if 'error_message' in result:
                 print(f"❌ Face++ Error: {result['error_message']}")
-                return 0, False  # RETURNS 2 VALUES - FIXED!
+                return 0, False  # RETURNS 2 VALUES
 
             confidence = result.get('confidence', 0)
             print(f"✅ Face comparison confidence: {confidence}%")
 
-            # IMPORTANT: Return ONLY 2 values to match existing code
-            return confidence, True  # ← FIXED: Only 2 values!
+            return confidence, True
 
         except requests.exceptions.Timeout:
             print("❌ Face++ API timeout after 25 seconds")
-            return 0, False  # RETURNS 2 VALUES
+            return 0, False
         except Exception as e:
             print(f"❌ Face comparison error: {e}")
-            return 0, False  # RETURNS 2 VALUES
+            return 0, False
 
     def detect_face_quality(self, image_data, is_url=False):
         """Check if image has a good quality face"""
@@ -185,7 +189,7 @@ class FacePlusPlusService:
             return False
 
     def create_faceset(self, faceset_token='worknest_faceset'):
-        """Create a faceset for storing staff faces"""
+        """Create a faceset for storing staff faces - FIXED UNTERMINATED PRINT LOG"""
         url = f"{self.base_url}/faceset/create"
         data = {
             'api_key': self.api_key,
@@ -203,7 +207,6 @@ class FacePlusPlusService:
             print(f"📊 Create Faceset Response: {result}")
 
             if 'error_message' in result:
-                # If faceset already exists, that's fine
                 if 'FACESET_EXIST' in result['error_message']:
                     print("✅ Faceset already exists")
                     return True
@@ -212,12 +215,10 @@ class FacePlusPlusService:
 
             success = 'faceset_token' in result
             if success:
-                print("✅ Faceset created successfully!")
-            else:
-                print("❌ Failed to create faceset")
-
-            return success
+                print(f"✅ Faceset successfully created and tracked: {faceset_token}")
+                return True
+            return False
 
         except Exception as e:
-            print(f"❌ Create faceset error: {e}")
+            print(f"❌ Faceset registration breakdown: {e}")
             return False
