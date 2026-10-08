@@ -5,7 +5,7 @@ recognition** or a **PIN**, and admins manage staff, view attendance, and
 see live check-in activity from a dashboard.
 
 **Live demo:** https://worknesthr.onrender.com
-
+**How it works:** https://lnkd.in/p/eG3iASVb
 ---
 
 ## Try it in 60 seconds
