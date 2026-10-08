@@ -126,7 +126,7 @@ async function captureAdminFace() {
     `;
 
     try {
-        const response = await fetch('/api/admin-face-login-separate', {
+        const response = await fetch('/api/face-login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -136,16 +136,16 @@ async function captureAdminFace() {
             })
         });
 
-        const result = await response.json();
+               const result = await response.json();
 
-        if (result.success) {
+        if (result.success && result.staff) {
             document.getElementById('adminFaceResult').innerHTML = `
                 <div class="alert alert-success">
-                    <i class="bi bi-check-circle"></i> ${result.message}
+                    <i class="bi bi-check-circle"></i> Welcome ${result.staff.name}!
                 </div>
             `;
 
-            // Redirect to admin dashboard
+            // Set admin session flag client-side hint and redirect
             setTimeout(() => {
                 stopAdminCamera();
                 window.location.href = '/admin/dashboard';
@@ -153,10 +153,11 @@ async function captureAdminFace() {
         } else {
             document.getElementById('adminFaceResult').innerHTML = `
                 <div class="alert alert-danger">
-                    <i class="bi bi-exclamation-triangle"></i> ${result.message}
+                    <i class="bi bi-exclamation-triangle"></i> ${result.message || 'Face not recognized'}
                 </div>
             `;
         }
+        
     } catch (error) {
         document.getElementById('adminFaceResult').innerHTML = `
             <div class="alert alert-danger">
