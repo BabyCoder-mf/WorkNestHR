@@ -16,7 +16,7 @@ class FacePlusPlusService:
         # DYNAMIC ENDPOINT CONFIGURATION: Fallback cleanly based on key regions
         # Options: api-us.faceplusplus.com or api-cn.faceplusplus.com
         region = current_app.config.get('FACE_API_REGION', 'us')
-        self.base_url = f"https://api-{region}://"
+        self.base_url = f"https://api-{region}.faceplusplus.com/facepp/v3"
         
         print(f"✅ Face++ Service initialized on region [{region}] with key: {self.api_key[:8]}...")
 
