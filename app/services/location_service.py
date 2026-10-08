@@ -1,11 +1,15 @@
 """Location service for detecting user location"""
 import requests
-import json
 
 
 class LocationService:
-    def __init__(self):
-        self.api_url = "http://ip-api.com/json/"
+    def __init__(self, ip=None):
+        # If we have the visitor's IP, look that up. Otherwise fall back to our own.
+        self.ip = ip
+        if ip:
+            self.api_url = f"http://ip-api.com/json/{ip}"
+        else:
+            self.api_url = "http://ip-api.com/json/"
 
     def get_location_info(self):
         """Get user location information"""
@@ -23,13 +27,8 @@ class LocationService:
                 'lon': data.get('lon')
             }
         except Exception as e:
-            print(f"❌ Location detection error: {e}")
+            print(f"Location detection error: {e}")
             return {
-                'ip': 'Unknown',
-                'country': 'Unknown',
-                'city': 'Unknown',
-                'region': 'Unknown',
-                'timezone': 'Unknown',
-                'lat': None,
-                'lon': None
+                'ip': 'Unknown', 'country': 'Unknown', 'city': 'Unknown',
+                'region': 'Unknown', 'timezone': 'Unknown', 'lat': None, 'lon': None
             }
