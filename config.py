@@ -11,6 +11,8 @@ class Config:  # Make sure this is exactly "Config" (capital C)
     # Face++ API Configuration
     FACE_API_KEY = os.environ.get('FACE_API_KEY', 'your-facepp-api-key')
     FACE_API_SECRET = os.environ.get('FACE_API_SECRET', 'your-facepp-api-secret')
+    # Add this inside your active Config class in config.py
+    FACE_API_REGION = os.getenv('FACE_API_REGION', 'us')  # Switch to 'cn' if utilizing Chinese account profiles
 
     # Imgur Configuration
     IMGUR_CLIENT_ID = os.environ.get('IMGUR_CLIENT_ID', 'your-imgur-client-id')
