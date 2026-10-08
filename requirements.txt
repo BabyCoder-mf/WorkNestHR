@@ -7,3 +7,4 @@ requests
 Pillow
 geopy
 python-dotenv
+psycopg2-binary
