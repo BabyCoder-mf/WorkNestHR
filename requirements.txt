@@ -5,3 +5,5 @@ pandas
 gunicorn
 requests
 Pillow
+geopy
+python-dotenv
